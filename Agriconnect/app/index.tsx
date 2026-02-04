@@ -45,7 +45,10 @@ export default function Index() {
 
                             {/* Login / Join */}
                             <View className="flex-row gap-4 mt-6 justify-center">
-                                <Pressable className="border border-green-500 rounded-xl px-8 py-3">
+                                <Pressable
+                                    onPress={() => router.push('/login')}
+                                    className="border border-green-500 rounded-xl px-8 py-3"
+                                >
                                     <Text className="text-green-400 font-semibold">
                                         Login
                                     </Text>

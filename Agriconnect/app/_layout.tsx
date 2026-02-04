@@ -71,6 +71,15 @@ export default function RootLayout() {
                     }}
                 />
 
+                {/* Login */}
+                <Stack.Screen
+                    name="login"
+                    options={{
+                        headerShown: false,
+                        title: 'Login', // Optionnel
+                    }}
+                />
+
                 {/* Tabs */}
                 <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
 
