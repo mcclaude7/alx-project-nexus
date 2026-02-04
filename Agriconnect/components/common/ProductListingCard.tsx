@@ -1,118 +1,248 @@
 import React, { useState } from 'react';
 import { View, Text, Image, TouchableOpacity, Alert } from 'react-native';
-import { HeartIcon } from 'react-native-heroicons/outline';
+import { HeartIcon, ShoppingCartIcon } from 'react-native-heroicons/outline';
 import { HeartIcon as HeartIconSolid } from 'react-native-heroicons/solid';
-import { MANGO_IMAGE } from '@/constants';
+import { ProductListingCardProps } from '@/interfaces';
 
+const ProductListingCard = ({
+    product,
+    compact = false,
+    onPress,
+    onFavoritePress,
+    onAddToCart,
+    showBuyButton = true,
+    style,
+}: ProductListingCardProps) => {
+    const [isFavorite, setIsFavorite] = useState(product.isFavorite || false);
+    const [isAddingToCart, setIsAddingToCart] = useState(false);
 
-const ProductCard = () => {
-  const [isFavorite, setIsFavorite] = useState(false);
-  const [quantity, setQuantity] = useState(1);
+    const formatPrice = (price: number) => {
+        return `N${price.toLocaleString()}`;
+    };
 
-  const handleBuy = () => {
-    Alert.alert(
-      'Confirmation',
-      `Acheter ${quantity} caisse(s) de Sweet Yellow Mango pour N${1200 * quantity}?`,
-      [
-        { text: 'Annuler', style: 'cancel' },
-        { text: 'Confirmer', onPress: () => console.log('Achat confirmé') }
-      ]
-    );
-  };
+    const handleFavoritePress = () => {
+        setIsFavorite(!isFavorite);
+        if (onFavoritePress) {
+            onFavoritePress(product.id);
+        }
+    };
 
-  return (
-    <View className="bg-white rounded-2xl shadow-2xl overflow-hidden w-72 mx-auto my-4 border border-gray-100">
-      {/* En-tête avec image et bouton favori */}
-      <View className="relative">
-        <Image
-          source={MANGO_IMAGE}
-          className="w-full h-40"
-          resizeMode="cover"
-        />
+    const handleAddToCart = () => {
+        setIsAddingToCart(true);
+        if (onAddToCart) {
+            onAddToCart(product);
+        }
+
+        // Simulation d'ajout au panier
+        setTimeout(() => {
+            setIsAddingToCart(false);
+            Alert.alert('Succès', `${product.name} ajouté au panier`);
+        }, 500);
+    };
+
+    const handlePress = () => {
+        if (onPress) {
+            onPress();
+        }
+    };
+
+    if (compact) {
+        return (
+            <TouchableOpacity
+                onPress={handlePress}
+                className="bg-white rounded-xl shadow-sm border border-gray-100 p-3 w-40 active:opacity-90"
+                style={style}
+            >
+                <View className="relative mb-2">
+                    <View className="w-full h-32 bg-green-50 rounded-lg mb-2 overflow-hidden">
+                        {product.imageUrl ? (
+                            <Image
+                                source={{ uri: product.imageUrl }}
+                                className="w-full h-full"
+                                resizeMode="cover"
+                            />
+                        ) : (
+                            <View className="w-full h-full items-center justify-center">
+                                <Text className="text-gray-400 text-xs">Produit</Text>
+                            </View>
+                        )}
+                    </View>
+                    <TouchableOpacity
+                        className="absolute top-2 right-2 bg-white/80 p-1 rounded-full"
+                        onPress={handleFavoritePress}
+                    >
+                        {isFavorite ? (
+                            <HeartIconSolid size={16} color="#EF4444" />
+                        ) : (
+                            <HeartIcon size={16} color="#9CA3AF" />
+                        )}
+                    </TouchableOpacity>
+
+                    {product.rating && (
+                        <View className="absolute bottom-2 left-2 bg-white/90 px-2 py-1 rounded-full flex-row items-center">
+                            <Text className="text-xs font-bold text-yellow-600">★</Text>
+                            <Text className="text-xs font-semibold ml-1">
+                                {product.rating}
+                            </Text>
+                        </View>
+                    )}
+                </View>
+
+                <Text className="text-lg font-bold text-green-800">
+                    {formatPrice(product.price)}
+                    <Text className="text-sm font-normal text-gray-500">
+                        {' '}
+                        /{product.unit}
+                    </Text>
+                </Text>
+
+                <Text
+                    className="text-sm font-medium text-gray-800 mt-1"
+                    numberOfLines={1}
+                >
+                    {product.name}
+                </Text>
+
+                <Text className="text-xs text-gray-500 mt-1" numberOfLines={1}>
+                    {product.seller}
+                </Text>
+
+                {showBuyButton && (
+                    <TouchableOpacity
+                        className="mt-3 bg-green-600 py-2 rounded-lg flex-row items-center justify-center"
+                        onPress={handleAddToCart}
+                        disabled={isAddingToCart}
+                    >
+                        <ShoppingCartIcon size={16} color="#FFFFFF" />
+                        <Text className="text-white text-sm font-semibold ml-2">
+                            {isAddingToCart ? 'Ajout...' : 'Ajouter'}
+                        </Text>
+                    </TouchableOpacity>
+                )}
+            </TouchableOpacity>
+        );
+    }
+
+    // Version normale
+    return (
         <TouchableOpacity
-          className="absolute top-3 right-3 bg-white/80 p-2 rounded-full"
-          onPress={() => setIsFavorite(!isFavorite)}
+            onPress={handlePress}
+            className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-3 active:opacity-90"
+            style={style}
         >
-          {isFavorite ? (
-            <HeartIconSolid size={24} color="#EF4444" />
-          ) : (
-            <HeartIcon size={24} color="#6B7280" />
-          )}
+            <View className="flex-row">
+                <View className="relative mr-4">
+                    <View className="w-24 h-24 bg-green-50 rounded-lg overflow-hidden">
+                        {product.imageUrl ? (
+                            <Image
+                                source={{ uri: product.imageUrl }}
+                                className="w-full h-full"
+                                resizeMode="cover"
+                            />
+                        ) : (
+                            <View className="w-full h-full items-center justify-center">
+                                <Text className="text-gray-400">Image</Text>
+                            </View>
+                        )}
+                    </View>
+                    <TouchableOpacity
+                        className="absolute top-2 right-2 bg-white/80 p-1 rounded-full"
+                        onPress={handleFavoritePress}
+                    >
+                        {isFavorite ? (
+                            <HeartIconSolid size={16} color="#EF4444" />
+                        ) : (
+                            <HeartIcon size={16} color="#9CA3AF" />
+                        )}
+                    </TouchableOpacity>
+
+                    {!product.inStock && (
+                        <View className="absolute bottom-2 left-2 bg-red-500 px-2 py-1 rounded-full">
+                            <Text className="text-xs text-white font-semibold">
+                                Rupture
+                            </Text>
+                        </View>
+                    )}
+                </View>
+
+                <View className="flex-1">
+                    <View className="flex-row justify-between items-start">
+                        <Text className="text-xl font-bold text-green-800">
+                            {formatPrice(product.price)}
+                            <Text className="text-base font-normal text-gray-500">
+                                {' '}
+                                /{product.unit}
+                            </Text>
+                        </Text>
+
+                        {product.rating && (
+                            <View className="flex-row items-center bg-yellow-50 px-2 py-1 rounded-full">
+                                <Text className="text-xs font-bold text-yellow-600">
+                                    ★
+                                </Text>
+                                <Text className="text-xs font-semibold ml-1">
+                                    {product.rating}
+                                </Text>
+                                {product.reviews && (
+                                    <Text className="text-xs text-gray-500 ml-1">
+                                        ({product.reviews})
+                                    </Text>
+                                )}
+                            </View>
+                        )}
+                    </View>
+
+                    <Text
+                        className="text-base font-medium text-gray-800 mt-1"
+                        numberOfLines={2}
+                    >
+                        {product.name}
+                    </Text>
+
+                    <Text className="text-sm text-gray-600 mt-1" numberOfLines={2}>
+                        {product.description}
+                    </Text>
+
+                    <View className="flex-row items-center mt-2">
+                        <View className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center mr-2">
+                            <Text className="text-green-600 text-xs font-bold">
+                                {product.seller.charAt(0)}
+                            </Text>
+                        </View>
+                        <Text className="text-sm text-gray-600">{product.seller}</Text>
+                        {product.deliveryTime && (
+                            <Text className="text-xs text-gray-500 ml-2">
+                                • {product.deliveryTime}
+                            </Text>
+                        )}
+                    </View>
+
+                    <View className="flex-row items-center justify-between mt-3">
+                        <TouchableOpacity
+                            className="bg-green-600 py-2 px-4 rounded-lg flex-row items-center"
+                            onPress={handleAddToCart}
+                            disabled={isAddingToCart || !product.inStock}
+                        >
+                            <ShoppingCartIcon size={16} color="#FFFFFF" />
+                            <Text className="text-white text-sm font-semibold ml-2">
+                                {isAddingToCart
+                                    ? 'Ajout...'
+                                    : !product.inStock
+                                      ? 'Rupture'
+                                      : 'Ajouter'}
+                            </Text>
+                        </TouchableOpacity>
+
+                        {product.minimumOrder && product.minimumOrder > 1 && (
+                            <Text className="text-xs text-gray-500">
+                                Min: {product.minimumOrder} {product.unit}
+                            </Text>
+                        )}
+                    </View>
+                </View>
+            </View>
         </TouchableOpacity>
-        
-        {/* Badge promo optionnel */}
-        <View className="absolute top-3 left-3 bg-red-500 px-3 py-1 rounded-full">
-          <Text className="text-white text-xs font-bold">Fresh</Text>
-        </View>
-      </View>
-      
-      {/* Contenu */}
-      <View className="p-5">
-        {/* Prix et unité */}
-        <View className="flex-row items-baseline mb-2">
-          <Text className="text-3xl font-extrabold text-green-700">N1,200</Text>
-          <Text className="text-gray-500 ml-2">/crate</Text>
-        </View>
-        
-        {/* Nom du produit */}
-        <Text className="text-xl font-bold text-gray-900 mb-1">
-          Sweet Yellow Mango
-        </Text>
-        
-        {/* Description courte */}
-        <Text className="text-gray-600 text-sm mb-1">
-          Premium quality, sweet and juicy
-        </Text>
-        
-        {/* Points de suspension stylisés */}
-        <View className="flex-row mb-4">
-          {[...Array(3)].map((_, i) => (
-            <View key={i} className="w-1 h-1 rounded-full bg-yellow-500 mx-1" />
-          ))}
-        </View>
-        
-        {/* Vendeur */}
-        <View className="flex-row items-center mb-6">
-          <View className="w-10 h-10 rounded-full bg-green-50 border-2 border-green-200 flex items-center justify-center mr-3">
-            <Text className="text-green-700 font-bold text-lg">A</Text>
-          </View>
-          <View>
-            <Text className="text-gray-900 font-medium">Ada Agro Coop</Text>
-            <Text className="text-green-600 text-sm">★★★★☆ 4.2</Text>
-          </View>
-        </View>
-        
-        {/* Contrôle quantité et bouton d'achat */}
-        <View className="flex-row items-center justify-between">
-          <View className="flex-row items-center border border-gray-300 rounded-lg">
-            <TouchableOpacity 
-              className="px-4 py-2"
-              onPress={() => setQuantity(Math.max(1, quantity - 1))}
-            >
-              <Text className="text-xl text-gray-600">−</Text>
-            </TouchableOpacity>
-            <Text className="px-4 py-2 text-lg font-semibold">{quantity}</Text>
-            <TouchableOpacity 
-              className="px-4 py-2"
-              onPress={() => setQuantity(quantity + 1)}
-            >
-              <Text className="text-xl text-gray-600">+</Text>
-            </TouchableOpacity>
-          </View>
-          
-          <TouchableOpacity 
-            className="bg-green-600 px-6 py-3 rounded-xl flex-1 ml-4"
-            onPress={handleBuy}
-          >
-            <Text className="text-white text-center font-bold text-lg">Acheter</Text>
-            <Text className="text-white/90 text-center text-sm">
-              N{1200 * quantity}
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    </View>
-  );
+    );
 };
 
-export default ProductCard;
+export default ProductListingCard;
