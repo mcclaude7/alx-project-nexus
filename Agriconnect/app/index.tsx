@@ -65,7 +65,10 @@ export default function Index() {
                             </View>
 
                             {/* Get Started */}
-                            <Pressable className="bg-green-600 rounded-2xl py-4 px-16 mt-6 self-center">
+                            <Pressable
+                                onPress={() => router.push('/(tabs)')}
+                                className="bg-green-600 rounded-2xl py-4 px-16 mt-6 self-center"
+                            >
                                 <Text className="text-white font-bold text-lg">
                                     Get Started
                                 </Text>
