@@ -2378,7 +2378,7 @@ const MarketplaceHome = () => {
                     products={filteredProducts}
                     title={selectedCategory === 'All' ? 'All Products' : selectedCategory}
                     onProductPress={handleProductPress}
-                    columns={2}
+                    columns={undefined}
                     emptyMessage={`No ${selectedCategory.toLowerCase()} found`}
                 />
             </ScrollView>
